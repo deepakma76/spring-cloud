@@ -1,12 +1,12 @@
 ### Spring Cloud
-Spring cloud project with Eureka server for microservices registration and discovery, as well as Ribbon for payment service load balancing.
+Spring cloud project with Eureka server for microservices registration and discovery.
 
 ### Usage
 * Launch the Eureka Server, with the default port set to 8761. 
-* Launch the Payment Service. To run a separate instance of the Payment Service, modify the port and start the application. 
-* Launch the Client Portal with the default port set to 8080. On the client portal, the spring cloud ribbon dependency is added for load balancing the Payment Service.
+* Launch the Payment Service, with the default port set to 9090. 
+* Launch the Order Service, with the default port set to 9089. 
+* Launch the API Gateway with the default port set to 8080. 
 
-When used with Eureka, the Ribbon automatically balances the client side load via a round robin mechanism.
 
 ### Image
-<img width="1469" alt="image" src="https://github.com/deepakma76/spring-cloud/assets/17908283/9088d06a-c5a4-42b0-b33d-37d8af6d08cb">
+<img width="1467" alt="image" src="https://github.com/deepakma76/spring-cloud/assets/17908283/6ee21433-ae72-4a07-a998-4d5c24a14400">
