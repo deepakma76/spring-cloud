@@ -14,13 +14,13 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 	public ResponseEntity<Object> handleConstraintViolation(final ConstraintViolationException ex) {
 		
 		ApiError apiError = new ApiError(HttpStatus.UNPROCESSABLE_ENTITY, ex.getErrorMessage());
-		return new ResponseEntity<Object>(apiError, apiError.getHttpStatus());
+		return new ResponseEntity<>(apiError, apiError.getHttpStatus());
 	}
 	
 	@ExceptionHandler({ ResourceNotFoundException.class })
 	public ResponseEntity<Object> handleResourceNotFoundException(final ResourceNotFoundException ex) {
 		
 		ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getMessage());
-		return new ResponseEntity<Object>(apiError, apiError.getHttpStatus());
+		return new ResponseEntity<>(apiError, apiError.getHttpStatus());
 	}
 }

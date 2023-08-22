@@ -16,13 +16,11 @@ public class OrderItemService {
 	IOrderItemRepository orderItemRepository;
 
 	public List<OrderItem> getAllOrderItem() {
-		List<OrderItem> itemList = orderItemRepository.findAll();
-		return itemList;
+		return orderItemRepository.findAll();
 	}
 
 	public List<OrderItem> getMaxPricedItem() {
-		List<OrderItem> itemList = orderItemRepository.findMaxPricedItems();
-		return itemList;
+		return orderItemRepository.findMaxPricedItems();
 	}
 
 	public Optional<OrderItem> getOrderItemById(int id) {

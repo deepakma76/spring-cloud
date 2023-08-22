@@ -1,6 +1,7 @@
 package com.order.project.controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,12 +19,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.order.project.errorhandling.ResourceNotFoundException;
 import com.order.project.model.Order;
 import com.order.project.model.OrderItem;
+import com.order.project.model.TransactionResponse;
 import com.order.project.service.OrderItemService;
 import com.order.project.service.OrderService;
 
 @RestController()
-@RequestMapping("order")
+@RequestMapping("orders")
 public class OrderController {
+
+	private static final String ORDER_CONSTANT = "Order ";
 
 	@Autowired
 	OrderService orderService;
@@ -31,7 +35,7 @@ public class OrderController {
 	@Autowired
 	OrderItemService itemService;
 
-	@GetMapping("allOrder")
+	@GetMapping
 	public ResponseEntity<List<Order>> getAllOrders() {
 		List<Order> orderList = orderService.getAllOrders();
 		return ResponseEntity.ok().body(orderList);
@@ -40,27 +44,33 @@ public class OrderController {
 	@GetMapping("{id}")
 	public ResponseEntity<Order> getOrderById(@PathVariable Integer id) {
 		Order order = orderService.getOrderById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Order " + id + " not found!"));
+				.orElseThrow(() -> new ResourceNotFoundException(ORDER_CONSTANT + id + " not found!"));
 
 		return ResponseEntity.ok().body(order);
 	}
 
-	@PostMapping("createOrder")
-	public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+	@PostMapping
+	public ResponseEntity<TransactionResponse> createOrder(@RequestBody Order order) {
 		Set<OrderItem> items = order.getOrderitem();
 		if (!items.isEmpty()) {
 			Double totalprice = items.stream().collect(Collectors.summingDouble(x -> x.getPrice()));
 			order.setTotalprice(totalprice);
 		}
-		Order createdOrder = orderService.saveOrders(order);
+		TransactionResponse createdOrder = orderService.saveOrders(order);
+		if (createdOrder == null) {
+			return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(createdOrder);
+		}
 		return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
 	}
 
 	@DeleteMapping("{id}")
 	public ResponseEntity<String> deleteOrder(@PathVariable Integer id) {
-		orderService.getOrderById(id).orElseThrow(() -> new ResourceNotFoundException("Order " + id + " not found!"));
-		orderService.deleteOrder(id);
-		return ResponseEntity.status(HttpStatus.OK).body("Order " + id + " deleted successfully.");
+		Optional<Order> foundOrder = orderService.getOrderById(id);
+		if (!foundOrder.isPresent()) {
+			throw new ResourceNotFoundException(ORDER_CONSTANT + id + " not found!");
+		}
+		orderService.deleteOrder(foundOrder.get().getId());
+		return ResponseEntity.status(HttpStatus.OK).body(ORDER_CONSTANT + id + " deleted successfully.");
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.order.project.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,19 +19,20 @@ import com.order.project.model.OrderItem;
 import com.order.project.service.OrderItemService;
 
 @RestController()
-@RequestMapping("/orderItem")
+@RequestMapping("order-items")
 public class OrderItemController {
 
+	private static final String ORDER_ITEM_CONSTANT = "Order item ";
 	@Autowired
 	OrderItemService orderItemService;
 
-	@GetMapping("allOrderItem")
+	@GetMapping
 	public ResponseEntity<List<OrderItem>> getAllOrderItems() {
 		List<OrderItem> itemList = orderItemService.getAllOrderItem();
 		return ResponseEntity.ok().body(itemList);
 	}
-	
-	@GetMapping("maxPricedItem")
+
+	@GetMapping("max-priced-items")
 	public ResponseEntity<List<OrderItem>> getMaxPricedItems() {
 		List<OrderItem> itemList = orderItemService.getMaxPricedItem();
 		return ResponseEntity.ok().body(itemList);
@@ -39,26 +41,24 @@ public class OrderItemController {
 	@GetMapping("{id}")
 	public ResponseEntity<OrderItem> getOrderById(@PathVariable Integer id) {
 		OrderItem orderItem = orderItemService.getOrderItemById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Order item " + id + " not found!"));
-
+				.orElseThrow(() -> new ResourceNotFoundException(ORDER_ITEM_CONSTANT + id + " not found!"));
 		return ResponseEntity.ok().body(orderItem);
-
 	}
 
-	@PostMapping("createOrderItem")
+	@PostMapping
 	public ResponseEntity<OrderItem> createOrderItem(@RequestBody OrderItem orderItem) {
 		OrderItem createdOrderItem = orderItemService.saveOrderItem(orderItem);
 		return ResponseEntity.status(HttpStatus.CREATED).body(createdOrderItem);
-
 	}
 
 	@DeleteMapping("{id}")
 	public ResponseEntity<String> deleteOrderItem(@PathVariable Integer id) {
-		orderItemService.getOrderItemById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Order item " + id + " not found!"));
-		orderItemService.deleteOrderItem(id);
-		return ResponseEntity.status(HttpStatus.OK).body("Order item " + id + " deleted successfully.");
-
+		Optional<OrderItem> founditem = orderItemService.getOrderItemById(id);
+		if (!founditem.isPresent()) {
+			throw new ResourceNotFoundException(ORDER_ITEM_CONSTANT + id + " not found!");
+		}
+		orderItemService.deleteOrderItem(founditem.get().getId());
+		return ResponseEntity.status(HttpStatus.OK).body(ORDER_ITEM_CONSTANT + id + " deleted successfully.");
 	}
 
 }
